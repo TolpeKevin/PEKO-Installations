@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # sqlite setup
-db = "PekoInstallations.db"
+db = "./PekoInstallations.db"
 try:
     f = open(db)
 except FileNotFoundError:
@@ -53,16 +53,16 @@ def klanten():
         print(e)
 
 @app.route("/installaties", methods=['GET','POST'])
-def instalaties():
+def installaties():
     try:
         with sqlite3.connect(db) as con:
             c = con.cursor()
             if request.method == 'GET':
                 installaties_cursor = c.execute("select * FROM installaties")
-                instalaties = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in installaties_cursor]
-                return jsonify(instalaties)
+                installaties_dict = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in installaties_cursor]
+                return jsonify(installaties_dict)
             elif request.method == 'POST':
-                c.execute("INSERT INTO onderhoudsets VALUES (%s, %s, %s, %s, %s, %s, %s,%s)",uuid.uuid4(), [request.form['klant'], request.form['adres'], request.form['type'], request.form['datum_installatie'],request.form['datum_installatie'], request.form['onderhoud_peko'], request.form['onderhoud_atag'], request.form['p_nummer'], request.form['dagen_tot_onderhoud']])
+                c.execute("INSERT INTO onderhoudsets VALUES (%s, %s, %s, %s, %s, %s, %s,%s)",(str(uuid.uuid4()), [request.form['klant'], request.form['adres'], request.form['type'], request.form['datum_installatie'],request.form['datum_installatie'], request.form['onderhoud_peko'], request.form['onderhoud_atag'], request.form['p_nummer'], request.form['dagen_tot_onderhoud']]))
                 return jsonify(c.lastrowid)
     except Exception as e:
         print(e)
