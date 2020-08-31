@@ -2,7 +2,7 @@
 from flask import Flask, jsonify, request
 from flask_cors import CORS
 import sqlite3
-import uuid
+import uuid, time, datetime
 
 # App
 
@@ -47,7 +47,7 @@ def klanten():
                 return jsonify(klanten)
 
             elif request.method == 'POST':
-                c.execute("INSERT INTO klanten VALUES (?, ?, ?, ?)", (str(uuid.uuid4()), request.form['naam'], request.form['telefoon'], request.form['mail']))
+                c.execute("INSERT INTO klanten VALUES (?, ?, ?, ?)", (str(uuid.uuid4()), request.json['naam'], request.json['telefoon'], request.json['mail']))
                 return jsonify(c.lastrowid)
     except Exception as e:
         print(e)
@@ -62,7 +62,8 @@ def installaties():
                 installaties_dict = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in installaties_cursor]
                 return jsonify(installaties_dict)
             elif request.method == 'POST':
-                c.execute("INSERT INTO onderhoudsets VALUES (%s, %s, %s, %s, %s, %s, %s,%s)",(str(uuid.uuid4()), [request.form['klant'], request.form['adres'], request.form['type'], request.form['datum_installatie'],request.form['datum_installatie'], request.form['onderhoud_peko'], request.form['onderhoud_atag'], request.form['p_nummer'], request.form['dagen_tot_onderhoud']]))
+                print("->",request.json.get('dagen_tot_onderhoud'))
+                c.execute("INSERT INTO installaties VALUES (?,?,?,?,?,?,?,?,?,?,?)",(str(uuid.uuid4()), request.json.get('klant'), request.json.get('adres'), request.json.get('type') ,request.json.get('datum_installatie') if request.json.get('datum_installatie') != '' else time.mktime(datetime.date.today().timetuple()),request.json.get('datum_installatie') if request.json.get('laatste_onderhoud') != '' else time.mktime(datetime.date.today().timetuple()), request.json.get('onderhoud_peko'), request.json.get('onderhoud_atag'), request.json.get('p_nummer'), request.json.get('dagen_tot_onderhoud'), request.json.get('mail_verstuurd')))
                 return jsonify(c.lastrowid)
     except Exception as e:
         print(e)
