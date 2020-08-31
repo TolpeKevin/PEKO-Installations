@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # sqlite setup
-db = "PekoInstallations.db"
+db = "flask/PekoInstallations.db"
 try:
     f = open(db)
 except FileNotFoundError:
