@@ -48,7 +48,7 @@
 \*------------------------------------*/
 
 html {
-color: #000000;
+color: var(--alpha-dark);
 background-color: #F6F7FB;
 font-size: 16px;
 line-height: 1.5;
@@ -111,7 +111,7 @@ h6 {
 font-size: 16px;
 font-weight: 600;
 line-height: 24px;
-margin: 0 0 var(--global-whitespace);
+margin: 0 0 24px;
 }
 
 p,
@@ -121,12 +121,12 @@ dl,
 table,
 address,
 figure {
-margin: 0 0 var(--global-whitespace);
+margin: 0 0 24px;
 }
 
 ul,
 ol {
-padding-left: var(--global-whitespace);
+padding-left: 24px;
 }
 
 li ul,
@@ -138,7 +138,7 @@ blockquote {
 font-style: normal;
 font-size: 23px;
 line-height: 32px;
-margin: 0 0 var(--global-whitespace);
+margin: 0 0 24px;
 }
 
 blockquote * {
@@ -150,14 +150,14 @@ figcaption {
 font-weight: 400;
 font-size: 12px;
 line-height: 16px;
-margin-top: var(--global-whitespace-sm);
+margin-top: 8px;
 }
 
 hr {
 border: 0;
 height: 1px;
 background: LightGrey;
-margin: 0 0 var(--global-whitespace);
+margin: 0 0 24px;
 }
 
 a,
@@ -172,11 +172,11 @@ outline-offset: 2px;
 
 a:hover,
 a:focus {
-color: var(--global-color-alpha-light);
+color: var(--alpha-dark);
 }
 
 a:active {
-color: var(--global-color-alpha);
+color: var(--alpha);
 }
 
 label,
@@ -189,7 +189,7 @@ width: 100%;
 }
 
 input::placeholder {
-color: var(--global-placeholder-color);
+color: var(--alpha-dark);
 }
 
 /*------------------------------------*\
@@ -223,6 +223,7 @@ color: var(--global-placeholder-color);
 }
 
 .fullscreen {
+  height: 100%;
   min-height: 100vh;
 }
 
@@ -230,14 +231,31 @@ color: var(--global-placeholder-color);
   height: 16px;
 }
 
+.icon:hover {
+  cursor: pointer;
+}
+
+.icon_edit {
+  opacity: 0;
+  transition: all .3s linear;
+}
+
+.customer_sm:hover > .customer_edit > .icon_edit {
+  opacity: 1;
+}
+
 .nav_item > .icon {
   height: 24px;
   padding-right: 24px;
 }
 
+.customer_edit > .icon {
+  margin-right: 16px;
+}
+
 .nav {
   background-color: white;
-  padding: 48px 48px 48px 48px ;
+  padding: 48px 48px 0px 48px ;
 }
 
 .nav_title {
@@ -306,8 +324,18 @@ color: var(--global-placeholder-color);
   border-radius: var(--border-radius);
 }
 
+.button.submit {
+  padding: 12px 24px ;
+  border: none;
+  border-radius: calc(var(--border-radius) / 2);
+}
+
 .button:hover {
   background-color: var(--alpha-dark);
+}
+
+.button:active {
+  background-color: var(--alpha);
 }
 
 .dashboard {
@@ -350,6 +378,14 @@ color: var(--global-placeholder-color);
   max-height: 500px;
 }
 
+.customer_edit {
+  align-items: center;
+}
+
+.customer_edit > p {
+  margin-right: 24px;
+}
+
 .customer_subtitle {
   font-size: 16px;
   font-weight: 700;
@@ -363,6 +399,76 @@ color: var(--global-placeholder-color);
 .expand > .customer_sm > .customer_arrow {
   transition: all .3s linear;
   transform: rotate(180deg);
+}
+
+.customer_info > .customer_edit > svg {
+  opacity: 0;
+  transition: all 0.3s linear;
+}
+
+.customer_info:hover > .customer_edit > svg {
+  opacity: 1;
+}
+
+.custom_input {
+  border-radius: calc(var(--border-radius) / 2);
+  padding: 12px;
+  height: 48px;
+  border: 1px solid var(--alpha-dark);
+  min-width: 200px;
+  width: 100%;
+}
+
+.custom_input:focus {
+  outline: none;
+}
+
+.installations {
+  position: relative;
+  border-radius: var(--border-radius);
+  padding: 32px ;
+  border: 1px solid var(--alpha-dark);
+}
+
+.installations_label {
+
+  position: absolute;
+  top: -12px;
+  padding: 0 16px;
+  background-color: white;
+}
+
+
+.overlay {
+  position: absolute;
+  justify-content: center;
+  align-items: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  background-color: rgba(0, 0, 0, 0.4);
+  height: 100vh;
+  width: 100vw;
+  min-width: 100%;
+  min-height: 100%;
+}
+
+.hide {
+  display: none;
+}
+
+.show {
+  display: block;
+}
+
+.overlay_card {
+  background-color: white;
+  padding: 24px;
+}
+
+.overlay_button {
+  padding: 12px;
+  margin-right: 16px;
 }
 
 /*------------------------------------*\
