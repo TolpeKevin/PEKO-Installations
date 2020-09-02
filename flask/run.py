@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # sqlite setup
-db = "./PekoInstallations.db"
+db = "flask/PekoInstallations.db"
 try:
     f = open(db)
 except FileNotFoundError:
@@ -25,7 +25,7 @@ else:
 def init():
     return jsonify('Initializing')
 
-@app.route("/klanten", methods=['GET','POST'])
+@app.route("/klanten", methods=['GET','POST', 'PUT'])
 def klanten():
     try:
         with sqlite3.connect(db) as con:
