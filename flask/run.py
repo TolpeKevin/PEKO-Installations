@@ -10,7 +10,7 @@ app = Flask(__name__)
 CORS(app)
 
 # sqlite setup
-db = "flask/PekoInstallations.db"
+db = "PekoInstallations.db"
 try:
     f = open(db)
 except FileNotFoundError:
@@ -46,17 +46,12 @@ def klanten():
     except Exception as e:
         print(e)
 
-@app.route("/installaties", methods=['GET','POST','PUT'])
+@app.route("/installaties", methods=['POST','PUT'])
 def installaties():
     try:
         with sqlite3.connect(db) as con:
             c = con.cursor()
-            if request.method == 'GET':
-                c.execute("select * FROM installaties")
-                installaties_dict = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in c.fetchall()]
-                return jsonify(installaties_dict)
-
-            elif request.method == 'POST':
+            if request.method == 'POST':
                 nieuwe_installatie = valideer_installatie_request(request, "POST")
                 if nieuwe_installatie:
                     c.execute("INSERT INTO installaties VALUES (?,?,?,?,?,?,?,?,?,?,?)",(str(uuid.uuid4()), nieuwe_installatie['klant'], nieuwe_installatie['adres'], nieuwe_installatie['type'] ,nieuwe_installatie['datum_installatie'],nieuwe_installatie['datum_installatie'], nieuwe_installatie['onderhoud_peko'], nieuwe_installatie['onderhoud_atag'], nieuwe_installatie['p_nummer'], nieuwe_installatie['dagen_tot_onderhoud'], nieuwe_installatie['mail_verstuurd']))
@@ -74,6 +69,21 @@ def installaties():
                     
     except Exception as e:
         print(e)
+
+@app.route("/installaties/<klant_id>", methods=['GET'])
+def installaties_klant(klant_id):
+    try:
+        with sqlite3.connect(db) as con:
+            c = con.cursor()
+            if request.method == 'GET':
+                c.execute("select * FROM installaties where klant = ?",[klant_id])
+                installaties_dict = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in c.fetchall()]
+                return jsonify(installaties_dict)
+
+                    
+    except Exception as e:
+        print(e)
+
 
 @app.route("/upcoming", methods=['GET'])
 def upcoming():
