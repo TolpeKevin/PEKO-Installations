@@ -46,6 +46,20 @@ def klanten():
     except Exception as e:
         print(e)
 
+@app.route("/klanten/<klant_id>", methods=['GET','POST', 'PUT'])
+def klant(klant_id):
+    try:
+        with sqlite3.connect(db) as con:
+            c = con.cursor()
+            if request.method == 'GET':
+                klanten_cursor = c.execute("select * FROM klanten where id = ?",[klant_id])
+                klanten = [{"id":k[0],"naam":k[1],"telefoon":k[2],"mail":k[3]} for k in klanten_cursor]
+                return jsonify(klanten)
+
+    except Exception as e:
+        print(e)
+
+
 @app.route("/installaties", methods=['POST','PUT'])
 def installaties():
     try:
