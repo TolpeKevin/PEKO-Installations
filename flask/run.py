@@ -9,8 +9,10 @@ import uuid, time, datetime
 app = Flask(__name__)
 CORS(app)
 
-# sqlite setup
-db = "PekoInstallations.db"
+# SQLite setup
+
+db = "flask/PekoInstallations.db"
+
 try:
     f = open(db)
 except FileNotFoundError:
@@ -24,6 +26,118 @@ else:
 @app.route("/")
 def init():
     return jsonify('Initializing')
+
+# ---------------
+# New Code
+# ---------------
+
+@app.route("/customers", methods=['GET', 'POST'])
+def customers():
+    try:
+        with sqlite3.connect(db) as conn:
+
+            c = conn.cursor()
+
+            if request.method == 'GET':
+
+                customer_cursor = c.execute("select * FROM klanten as k order by k.naam desc")
+                all_customers = [{"id": customer[0], "name": customer[1], "phone": customer[2], "mail": customer[3]} for customer in customer_cursor]
+
+                print(all_customers)
+
+                return jsonify(all_customers)
+
+            elif request.method == 'POST':
+
+                json = request.get_json()
+                customer_cursor = c.execute("INSERT INTO klanten VALUES (?, ?, ?, ?)", [str(uuid.uuid4()), json['name'], json['phone'], json['mail'], ])
+                conn.commit()
+
+                return jsonify(json)
+
+            c.close()
+            conn.close()
+
+            return jsonify("Error")
+
+    except Exception as e:
+        print(e)
+        return None
+
+
+@app.route("/customers/<customer_id>", methods=['GET', 'PUT'])
+def customer(customer_id):
+    try:
+        with sqlite3.connect(db) as conn:
+
+            c = conn.cursor()
+
+            if request.method == 'GET':
+
+                customer_cursor = c.execute("select * FROM klanten where id = ?", [customer_id])
+                customer = [{"id": c[0], "name": c[1], "phone": c[2], "mail": c[3]} for c in customer_cursor]
+
+                return jsonify(customer)
+
+            elif request.method == 'PUT':
+
+                json = request.get_json()
+                customer_cursor = c.execute("update klanten set naam = ?, telefoon = ?, mail = ? where id = ?", [json["name"], json["phone"], json["mail"], customer_id])
+                customer = [{"id": c[0], "name": c[1], "phone": c[2], "mail": c[3]} for c in customer_cursor]
+
+                return jsonify(customer)
+
+            c.close()
+            conn.close()
+
+    except Exception as e:
+        print(e)
+        return None
+
+
+@app.route("/installations", methods=['GET'])
+def installations():
+    try:
+        with sqlite3.connect(db) as conn:
+
+            c = conn.cursor()
+
+            if request.method == 'GET':
+
+                installation_cursor = c.execute("select * FROM installaties as i order by i.adres desc")
+
+                all_installations = []
+                unique_customers = set()
+
+                for inst in installation_cursor:
+                    if inst[1] in unique_customers:
+                        for customer in all_installations:
+                            if customer['id'] == inst[1]:
+                                customer['installations'].append({"id": inst[0], "adres": inst[2], "type": inst[3]
+                        , "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8]
+                        , "reminder": inst[9]})
+                    else:
+                        unique_customers.add(inst[1])
+                        all_installations.append({"id": inst[1]
+                        , "installations": [{"id": inst[0], "adres": inst[2], "type": inst[3]
+                        , "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8]
+                        , "reminder": inst[9]}]})
+
+                return jsonify(all_installations)
+
+            c.close()
+            conn.close()
+
+            return jsonify("Error")
+
+    except Exception as e:
+        print("Error: " + str(e))
+        return jsonify("Error, Something went wrong")
+
+
+# ---------------
+# Old Code
+# ---------------
 
 @app.route("/klanten", methods=['GET','POST', 'PUT'])
 def klanten():
@@ -42,19 +156,6 @@ def klanten():
             elif request.method == 'PUT':
                 c.execute("update klanten set naam = ?, telefoon = ?, mail = ? where id = ?", [request.json['naam'], request.json['telefoon'], request.json['mail'], request.json['id']])
                 return jsonify({"message":"succes"})
-
-    except Exception as e:
-        print(e)
-
-@app.route("/klanten/<klant_id>", methods=['GET','POST', 'PUT'])
-def klant(klant_id):
-    try:
-        with sqlite3.connect(db) as con:
-            c = con.cursor()
-            if request.method == 'GET':
-                klanten_cursor = c.execute("select * FROM klanten where id = ?",[klant_id])
-                klanten = [{"id":k[0],"naam":k[1],"telefoon":k[2],"mail":k[3]} for k in klanten_cursor]
-                return jsonify(klanten)
 
     except Exception as e:
         print(e)
@@ -97,7 +198,6 @@ def installaties_klant(klant_id):
                     
     except Exception as e:
         print(e)
-
 
 @app.route("/upcoming", methods=['GET'])
 def upcoming():

@@ -358,7 +358,6 @@ color: var(--alpha-dark);
 }
 
 .customer {
-  
   overflow: hidden;
   max-height: 56px;
   transition: all .5s linear;
@@ -371,11 +370,11 @@ color: var(--alpha-dark);
 }
 
 .customer_lg {
-  padding: 16px 24px;
+  padding: 24px 48px;
 }
 
 .customer.expand {
-  max-height: 500px;
+  max-height: 1000px;
 }
 
 .customer_edit {
@@ -387,7 +386,7 @@ color: var(--alpha-dark);
 }
 
 .customer_subtitle {
-  font-size: 16px;
+  font-size: 24px;
   font-weight: 700;
 }
 
@@ -462,6 +461,7 @@ color: var(--alpha-dark);
 }
 
 .overlay_card {
+  z-index: 1;
   background-color: white;
   padding: 24px;
 }
@@ -479,6 +479,8 @@ color: var(--alpha-dark);
 /*------------------------------------*\
 # Spacing
 \*------------------------------------*/
+
+/* Bottom */
 
 .u-pt-clear {
   padding-top: 0 !important;
@@ -514,6 +516,40 @@ color: var(--alpha-dark);
 
 .u-mb-xxl {
   margin-bottom: 48px !important;
+}
+
+/* Right */
+
+.u-mr-clear {
+  margin-right: 0 !important;
+}
+
+.u-mr-xs {
+  margin-right: 4px !important;
+}
+
+.u-mr-sm {
+  margin-right: 8px !important;
+}
+
+.u-mr {
+  margin-right: 24px !important;
+}
+
+.u-mr-md {
+  margin-right: 16px !important;
+}
+
+.u-mr-lg {
+  margin-right: 32px !important;
+}
+
+.u-mr-xl {
+  margin-right: 40px !important;
+}
+
+.u-mr-xxl {
+  margin-right: 48px !important;
 }
 
 /*------------------------------------*\

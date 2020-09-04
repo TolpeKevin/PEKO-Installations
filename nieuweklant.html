@@ -16,7 +16,7 @@
         <div class="flex">
             <div class="flex_item u-2-of-5-bp3 u-1-of-5-bp4">
                 <div class="nav fullscreen">
-                    <h2 class="nav_title">PEKO Instalations</h2>
+                    <h2 class="nav_title">PEKO Installations</h2>
 
                     <div>
                         <ul class="nav_items">
@@ -36,14 +36,6 @@
                                     </div>
                                 </a>
                             </li>
-                            <!--<li>
-                                <a href="/installaties.html">
-                                    <div class="nav_item flex">
-                                        <svg class="icon" aria-hidden="true" focusable="false" class="svg-inline--fa fa-toolbox fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M502.63 214.63l-45.25-45.25c-6-6-14.14-9.37-22.63-9.37H384V80c0-26.51-21.49-48-48-48H176c-26.51 0-48 21.49-48 48v80H77.25c-8.49 0-16.62 3.37-22.63 9.37L9.37 214.63c-6 6-9.37 14.14-9.37 22.63V320h128v-16c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v16h128v-16c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v16h128v-82.75c0-8.48-3.37-16.62-9.37-22.62zM320 160H192V96h128v64zm64 208c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16v-16H192v16c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16v-16H0v96c0 17.67 14.33 32 32 32h448c17.67 0 32-14.33 32-32v-96H384v16z"></path></svg>
-                                        <p>Installaties</p>
-                                    </div>
-                                </a>
-                            </li> -->
                         </ul>
                     </div>
                 </div>
@@ -61,25 +53,25 @@
                         <div class="card dashboard">
                             
 
-                            <form action="" method="POST">
+                            <form action="" onsubmit="return createNewCustomer(name, phone, mail)" method="POST">
 
                                 <p class="u-mb subtitle">Bedrijfsinformatie</p>
 
                                 <div class="u-mb flex flex_gutter">
                                     <div class="flex_item u-1-of-2-bp3 u-1-of-3-bp4">
-                                        <label for="bedrijfsnaam" class="u-mb-sm">Bedrijfsnaam</label>
-                                        <input id="bedrijfsnaam" class="custom_input" type="text" required>
+                                        <label for="name" class="u-mb-sm">Bedrijfsnaam</label>
+                                        <input id="name" class="custom_input" type="text" required>
                                     </div>
                                 </div>
 
                                 <div class="u-mb-xxl flex flex_gutter">
                                     <div class="flex_item u-1-of-2-bp3 u-1-of-3-bp4">
-                                        <label for="tel" class="u-mb-sm">Telefoonnummer</label>
-                                        <input id="tel" class="custom_input" type="text">
+                                        <label for="phone" class="u-mb-sm">Telefoonnummer</label>
+                                        <input id="phone" class="custom_input" type="text">
                                     </div>
                                     <div class="flex_item u-1-of-2-bp3 u-1-of-3-bp4">
-                                        <label for="email" class="u-mb-sm">E-mailadres</label>
-                                        <input id="email" class="custom_input" type="email">
+                                        <label for="mail" class="u-mb-sm">E-mailadres</label>
+                                        <input id="mail" class="custom_input" type="email">
                                     </div>
                                 </div>
 
@@ -89,7 +81,7 @@
                                     <div class="u-mb-xxl flex flex_gutter installations">
                                         <p class="installations_label u-mb-clear">Installatie 1</p>
     
-                                        <div class="flex_item u-mb u-1-of-2-bp3 u-3-of-4-bp4">
+                                        <div class="flex_item u-mb u-3-of-4-bp4">
                                             <label for="adres-1" class="u-mb-sm">Adres</label>
                                             <input id="adres-1" class="custom_input" type="text" required>
                                         </div>
