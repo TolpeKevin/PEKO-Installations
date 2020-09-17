@@ -3,6 +3,9 @@ from flask import Flask, jsonify, request
 from flask_cors import CORS
 import sqlite3
 import uuid, time, datetime
+import smtplib, ssl
+from email.mime.text import MIMEText
+from email.mime.multipart import MIMEMultipart
 
 # App
 
@@ -11,7 +14,7 @@ CORS(app)
 
 # SQLite setup
 
-db = "flask/PekoInstallations.db"
+db = "/database/PekoInstallations.db"
 
 try:
     f = open(db)
@@ -20,6 +23,20 @@ except FileNotFoundError:
 else:
     print("Database found")
     f.close()
+
+# smtp setup
+
+port = 465  # For SSL
+try:
+    with open('/run/secrets/db_pass') as secret:
+        password = secret.readline()
+except Exception as e:
+    print(e)
+context = ssl.create_default_context()
+smtp_server = "smtp.gmail.com"
+login = "gamesdezotn@gmail.com"
+sender_email = "herinnering@peko.be"  # Enter your address
+receiver_email = "k.tolpe@hotmail.com"  # Enter receiver address
 
 # Routes
 
@@ -104,25 +121,18 @@ def installations():
 
             if request.method == 'GET':
 
-                installation_cursor = c.execute("select * FROM installaties as i order by i.adres desc")
-
+                installation_cursor = c.execute("select * FROM installaties as i order by i.datum desc ")
                 all_installations = []
                 unique_customers = set()
-
                 for inst in installation_cursor:
                     if inst[1] in unique_customers:
                         for customer in all_installations:
                             if customer['id'] == inst[1]:
-                                customer['installations'].append({"id": inst[0], "adres": inst[2], "type": inst[3]
-                        , "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8]
-                        , "reminder": inst[9]})
+                                customer['installations'].append({"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8], "reminder": inst[9]})
                     else:
                         unique_customers.add(inst[1])
-                        all_installations.append({"id": inst[1]
-                        , "installations": [{"id": inst[0], "adres": inst[2], "type": inst[3]
-                        , "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8]
-                        , "reminder": inst[9]}]})
-
+                        all_installations.append({"id": inst[1], "installations": [{"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8], "reminder": inst[9]}]})
+                print(all_installations)
                 return jsonify(all_installations)
 
             c.close()
@@ -240,20 +250,46 @@ def valideer_installatie_request(r, t):
 def get_te_onderhouden_installaties():
     with sqlite3.connect(db) as con:
         c = con.cursor()
-        c.execute('select * from installaties where (laatste_onderhoud + (dagen_tot_onderhoud * 86400)) <= cast(strftime("%s", "now") as decimal) and mail_verstuurd = 0')
-        installaties_dict = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in c.fetchall()]
-        if len(installaties_dict) != 0:
-            send_mail(installaties_dict)
+        c.execute('select k.*, i.* from installaties as i inner JOIN klanten as k on i.klant = k.id where (laatste_onderhoud + (dagen_tot_onderhoud * 86400)) <= cast(strftime("%s", "now") as decimal) and mail_verstuurd = 0')
+        send_mail(c.fetchall())
 
 # mails
 def send_mail(installaties):
     #mails...
+    if len(installaties) > 0:
+        all_installations = []
+        unique_customers = set()
+        for inst in installaties:
+            if inst[0] in unique_customers:
+                for customer in all_installations:
+                    if customer['id'] == inst[0]:
+                        customer['installations'].append({"adres": inst[6], "type": inst[7], "datum_installatie": inst[8], "laatste_onderhoud": inst[9], "p_nummer": inst[12], "reminder": inst[13]})
+            else:
+                unique_customers.add(inst[0])
+                all_installations.append({"id": inst[0], "naam": inst[1], "telefoon": inst[2], "mail": inst[3], "installations": [{"adres": inst[6], "type": inst[7], "datum_installatie": inst[8], "laatste_onderhoud": inst[9], "p_nummer": inst[12], "reminder": inst[13]}]})
+        html = ""
+        for k in all_installations:
+            html += "Klant: {}\nInstallatie(s):\n\n".format(k['naam'])
+            for i in k['installations']:
+                datum_i = datetime.datetime.fromtimestamp(i['datum_installatie'])
+                datum_lo = datetime.datetime.fromtimestamp(i['laatste_onderhoud'])
+                td = (datetime.datetime.today() -datum_lo).days
+                html += "\tAdres: {}      Type: {}\t P nummer: {}\n\tDatum installatie: {}        Laatste onderhoud: {}       Dagen sinds onderhoud: {}\n\n".format(i['adres'], i['type'], i['p_nummer'], datum_i.date(),datum_lo.date(), td)
 
-    # update db for send mails
-    with sqlite3.connect(db) as con:
-        c = con.cursor()
-        ids = [i['id'] for i in installaties]
-        c.execute(f'update installaties set mail_verstuurd = 1 where id in (?{",?"*(len(ids)-1)})',[i['id'] for i in installaties])
+        with smtplib.SMTP_SSL(smtp_server, port, context=context) as server:
+            server.login(login, password)
+            message = MIMEMultipart("alternative")
+            message["Subject"] = "Herinnering ketel installatie"
+            message["From"] = sender_email
+            message["To"] = receiver_email
+            message.attach(MIMEText(html, "plain"))
+            server.sendmail(sender_email, receiver_email, message.as_string())
+        return True
+        # update db for send mails
+        with sqlite3.connect(db) as con:
+            c = con.cursor()
+            ids = [i['id'] for i in installaties]
+            c.execute(f'update installaties set mail_verstuurd = 1 where id in (?{",?"*(len(ids)-1)})',[i['id'] for i in installaties])
 
 
 get_te_onderhouden_installaties()
