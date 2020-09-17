@@ -206,6 +206,14 @@ color: var(--alpha-dark);
     flex-wrap: wrap;
 }
 
+.flex_align_center {
+  align-items: center;
+}
+
+.flex_space_between {
+  justify-content: space-between;
+}
+
 .flex_column {
   flex-direction: column;
 }
@@ -429,10 +437,20 @@ color: var(--alpha-dark);
   border: 1px solid var(--alpha-dark);
 }
 
-.installations_label {
-
+.installations_labels {
   position: absolute;
   top: -12px;
+  left: 0;
+  padding: 0 32px;
+  width: 100%;
+}
+
+.installations_label {
+  padding: 0 16px;
+  background-color: white;
+}
+
+.installations_close {
   padding: 0 16px;
   background-color: white;
 }

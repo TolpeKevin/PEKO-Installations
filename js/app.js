@@ -4,7 +4,7 @@ let page, customers, overlay;
 let allCustomers;
 
 /* New Customer */
-let extra, installationsform, nmbInst = 1;
+let extra, installationsform, nmbInst = 0, actualNmbInst = 0, customerForm;
 
 const getDOMsByPage = function(page) {
 
@@ -16,6 +16,7 @@ const getDOMsByPage = function(page) {
     else if(page == 'js-new-customer'){
         installationsform = document.querySelector('.js-installations');
         extra = document.querySelector('.js-extra');
+        customerForm = document.querySelector('.js-create-new-customer');
     }    
 }
 
@@ -26,48 +27,78 @@ const addListeners = function(page) {
     if(page == 'js-dashboard'){
     }
     else if(page == 'js-new-customer'){
+        customerForm.addEventListener('submit', function(event) {
+
+            nmbInputs = 3 + 5 * actualNmbInst
+
+            for(let i = 0; i < nmbInputs; i++){
+
+                /* Complete the body */    
+
+                console.log(event.srcElement[i].value)
+            }
+
+            
+
+            /*let body = JSON.stringify({"name": name.value, "phone": phone.value, "mail": mail.value, "installations": []})
+            handleData(`http://127.0.0.1:5000/customers`, successfull, 'POST', body)*/
+
+            event.preventDefault();
+        })
+
+
         extra.addEventListener('click', function(){
             nmbInst++
+            actualNmbInst++
 
-            installationsform.innerHTML += `<div class="u-mb-xxl flex flex_gutter installations">
-            <p class="installations_label u-mb-clear">Installatie ${nmbInst}</p>
+            let container = document.createElement("div")
+
+            container.classList.add('u-mb-xxl')
+            container.classList.add('flex')
+            container.classList.add('flex_gutter')
+            container.classList.add('installations')
+
+            container.innerHTML = `
+
+            <div class="flex flex_align_center flex_space_between installations_labels">
+                <p class="installations_label u-mb-clear">Installatie ${nmbInst}</p>
+
+                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="icon installations_close u-mb-clear js-close-${nmbInst}" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+            </div>
 
             <div class="flex_item u-mb u-1-of-2-bp3 u-3-of-4-bp4">
                 <label for="adres-${nmbInst}" class="u-mb-sm">Adres</label>
-                <input id="adres-${nmbInst}" class="custom_input" type="text">
+                <input id="adres-${nmbInst}" class="custom_input" type="text" required>
             </div>
             <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
                 <label for="type-${nmbInst}" class="u-mb-sm">Type</label>
-                <input id="type-${nmbInst}" class="custom_input" type="text">
+                <input id="type-${nmbInst}" class="custom_input" type="text" required>
             </div>
             <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
                 <label for="pnumber-${nmbInst}" class="u-mb-sm">P nummer</label>
-                <input id="pnumber-${nmbInst}" class="custom_input" type="text">
+                <input id="pnumber-${nmbInst}" class="custom_input" type="text" required>
             </div>
             <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
                 <label for="installationdate-${nmbInst}" class="u-mb-sm">Installatiedatum</label>
-                <input id="installationdate-${nmbInst}" class="custom_input" type="date">
+                <input id="installationdate-${nmbInst}" class="custom_input" type="date" required>
             </div>
             <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
                 <label for="reminder-${nmbInst}" class="u-mb-sm">Reminder (dagen)</label>
-                <input id="reminder-${nmbInst}" class="custom_input" type="number">
-            </div>
-        </div>`
-        })
+                <input id="reminder-${nmbInst}" class="custom_input" type="number" required>
+            </div>`
+
+            installationsform.appendChild(container)
+
+            document.querySelector(`.js-close-${nmbInst}`).addEventListener('click', function(){
+                installationsform.removeChild(container)
+                actualNmbInst--
+            });
+        });
     }    
 }
 
-const createNewCustomer = function(name, phone, mail) {
-
-    let body = JSON.stringify({"name": name.value, "phone": phone.value, "mail": mail.value})
-
-    handleData(`http://127.0.0.1:5000/customers`, successfull, 'POST', body)
-
-    return false
-}
-
 const successfull = function(json) {
-
+    return false;
 }
 
 const showCustomers = function(json) {
@@ -81,17 +112,17 @@ const showCustomers = function(json) {
                     <div class="flex customer_sm">
                         <div class="flex customer_edit">
                             <p class="u-mb-clear">${j['name']}</p>
-                            <svg class="icon icon_edit" aria-hidden="true" focusable="false" class="svg-inline--fa fa-trash fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"></path></svg>
+                            <svg class="icon icon_edit" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M432 32H312l-9.4-18.7A24 24 0 0 0 281.1 0H166.8a23.72 23.72 0 0 0-21.4 13.3L136 32H16A16 16 0 0 0 0 48v32a16 16 0 0 0 16 16h416a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16zM53.2 467a48 48 0 0 0 47.9 45h245.8a48 48 0 0 0 47.9-45L416 128H32z"></path></svg>
                         </div>
                         
-                        <svg class="icon customer_arrow" aria-hidden="true" focusable="false" class="svg-inline--fa fa-angle-down fa-w-10" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg>
+                        <svg class="icon customer_arrow" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 320 512"><path fill="currentColor" d="M143 352.3L7 216.3c-9.4-9.4-9.4-24.6 0-33.9l22.6-22.6c9.4-9.4 24.6-9.4 33.9 0l96.4 96.4 96.4-96.4c9.4-9.4 24.6-9.4 33.9 0l22.6 22.6c9.4 9.4 9.4 24.6 0 33.9l-136 136c-9.2 9.4-24.4 9.4-33.8 0z"></path></svg>
                     </div>
                     <hr />
                     <div class="customer_lg">
                         <div class="customer_info">
                             <div class="flex customer_edit">
                                 <p class="u-mb customer_subtitle">Bedrijfsinformatie</p>
-                                <svg class="icon u-mb" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" class="svg-inline--fa fa-pen fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg>
+                                <svg class="icon u-mb" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg>
                             </div>
                             
 
@@ -149,6 +180,8 @@ const listenersCustomer = function() {
 
         customer['children'][0]['children'][0]['children'][1].addEventListener('click', function(){
             overlay.classList.toggle('show')
+            overlay.setAttribute("data-id", customer["dataset"]["id"]);
+            console.log(overlay)
         })
 
         /* Hide overlay by pressing cancel */
@@ -180,6 +213,13 @@ const listenersCustomer = function() {
             let id = customer['dataset']['id'];
 
             document.location.href = `/updatebedrijfsinfo.html?id=${id}`;
+        })
+
+        /* Delete customer */
+
+        overlay['children'][0]['children'][0]['children'][2]['children'][0].addEventListener('click', function() {
+            handleData(`http://127.0.0.1:5000/customers/${overlay['dataset']['id']}`, successfull, method = 'DELETE')
+            overlay.classList.remove('show');
         })
     }
 }
