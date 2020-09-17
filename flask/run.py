@@ -60,8 +60,6 @@ def customers():
                 customer_cursor = c.execute("select * FROM klanten as k order by k.naam desc")
                 all_customers = [{"id": customer[0], "name": customer[1], "phone": customer[2], "mail": customer[3]} for customer in customer_cursor]
 
-                print(all_customers)
-
                 return jsonify(all_customers)
 
             elif request.method == 'POST':
@@ -82,7 +80,7 @@ def customers():
         return None
 
 
-@app.route("/customers/<customer_id>", methods=['GET', 'PUT'])
+@app.route("/customers/<customer_id>", methods=['GET', 'PUT', 'DELETE'])
 def customer(customer_id):
     try:
         with sqlite3.connect(db) as conn:
@@ -103,6 +101,13 @@ def customer(customer_id):
                 customer = [{"id": c[0], "name": c[1], "phone": c[2], "mail": c[3]} for c in customer_cursor]
 
                 return jsonify(customer)
+
+            elif request.method == 'DELETE':
+
+                customer_cursor = c.execute("delete from installaties as i where i.klant = ?", [customer_id])
+                customer_cursor = c.execute("delete from klanten as k where k.id = ?", [customer_id])
+
+                return jsonify("Succesfull")
 
             c.close()
             conn.close()
