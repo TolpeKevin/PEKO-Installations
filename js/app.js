@@ -69,6 +69,8 @@ const addListeners = function(page) {
 
         installationForm.addEventListener('submit', function(event) {
 
+            actualNmbInst++
+
             let nmbInputs = 5 * actualNmbInst
 
             let createInst = []
@@ -88,11 +90,12 @@ const addListeners = function(page) {
                 createInst.push(inst)
             }
 
-            let body = JSON.stringify({"installations": createInst})
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
 
-            /*handleData(`http://127.0.0.1:5000/customers`, successfull, 'POST', body)*/
+            let body = JSON.stringify({"customer_id": id, "installations": createInst})
 
-            console.log(body)
+            handleData(`http://127.0.0.1:5000/installations`, successfull, 'POST', body)
 
             event.preventDefault();
 
