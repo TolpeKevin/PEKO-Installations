@@ -124,7 +124,7 @@ def customer(customer_id):
         return None
 
 
-@app.route("/installations", methods=['GET'])
+@app.route("/installations", methods=['GET','POST','PUT'])
 def installations():
     try:
         with sqlite3.connect(db) as conn:
@@ -140,30 +140,31 @@ def installations():
                     if inst[1] in unique_customers:
                         for customer in all_installations:
                             if customer['id'] == inst[1]:
-                                customer['installations'].append({"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8], "reminder": inst[9]})
+                                customer['installations'].append({"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": utc_to_str(inst[4]), "laatste_onderhoud": utc_to_str(inst[5]), "p_nummer": inst[8], "reminder": inst[9]})
                     else:
                         unique_customers.add(inst[1])
-                        all_installations.append({"id": inst[1], "installations": [{"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8], "reminder": inst[9]}]})
-                print(all_installations)
+                        all_installations.append({"id": inst[1], "installations": [{"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": utc_to_str(inst[4]), "laatste_onderhoud": utc_to_str(inst[5]), "p_nummer": inst[8], "reminder": inst[9]}]})
                 return jsonify(all_installations)
             
             elif request.method == 'POST':
 
                 json = request.get_json()
-
                 for installation in json['installations']:
-                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [str(uuid.uuid4()), installation['customer_id'], installation['address'], installation['type'], installation['installation_date'], installation['installation_date'], 0, 0, installation['pnumber'], installation['reminder'], 0])
+                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [str(uuid.uuid4()), json['customer_id'], installation['address'], installation['type'], str_to_utc(installation['installation_date']), str_to_utc(installation['installation_date']), 0, 0, installation['pnumber'], installation['reminder'], 0])
 
                 conn.commit()
+                return jsonify("Succes")
+
             
             elif request.method == 'PUT':
 
                 json = request.get_json()
 
                 for installation in json['installations']:
-                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [installation['id'], installation['customer_id'], installation['address'], installation['type'], installation['installation_date'], installation['installation_date'], 0, 0, installation['pnumber'], installation['reminder'], 0])
+                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [installation['id'], json['customer_id'], installation['address'], installation['type'], str_to_utc(installation['installation_date']), str_to_utc(installation['installation_date']), 0, 0, installation['pnumber'], installation['reminder'], 0])
 
                 conn.commit()
+                return jsonify("Succes")
 
             c.close()
             conn.close()
@@ -174,6 +175,19 @@ def installations():
         print("Error: " + str(e))
         return jsonify("Error, Something went wrong")
 
+@app.route("/installations/<costumer_id>", methods=['GET'])
+def installation(costumer_id):
+    try:
+        with sqlite3.connect(db) as con:
+            c = con.cursor()
+            if request.method == 'GET':
+                c.execute("select * FROM installaties where klant = ?",[costumer_id])
+                installaties_dict = [{"id":k[0],"customer_id":k[1],"address":k[2],"type":k[3],"installation_date":utc_to_str(k[4]),"laatste_onderhoud":utc_to_str(k[5]),"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in c.fetchall()]
+                return jsonify(installaties_dict)
+
+                    
+    except Exception as e:
+        print(e)
 
 # ---------------
 # Old Code
@@ -225,6 +239,7 @@ def installaties():
     except Exception as e:
         print(e)
 
+
 @app.route("/installaties/<klant_id>", methods=['GET'])
 def installaties_klant(klant_id):
     try:
@@ -254,8 +269,12 @@ def upcoming():
 # date conversion
 
 def str_to_utc(str_date):
-    d = datetime.datetime.strptime(str_date, '%Y-%m-%d')
-    return true
+    return datetime.datetime.strptime(str_date, '%Y-%m-%d').timestamp()
+
+def utc_to_str(utc_date):
+    print(utc_date, type(float(utc_date)))
+    return datetime.datetime.fromtimestamp(float(utc_date)).strftime('%Y-%m-%d')
+
 
 # request validation
 def valideer_installatie_request(r, t):
@@ -290,6 +309,7 @@ def get_te_onderhouden_installaties():
 
 # mails
 def send_mail(installaties):
+    return True
     #mails...
     if len(installaties) > 0:
         all_installations = []
