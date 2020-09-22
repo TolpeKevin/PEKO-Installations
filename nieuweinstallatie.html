@@ -12,7 +12,7 @@
         <script src="js/app.js"></script>
     </head>
 
-    <body class="js-new-customer">
+    <body class="js-new-installation">
         <div class="flex">
             <div class="flex_item u-2-of-5-bp3 u-1-of-5-bp4">
                 <div class="nav fullscreen">
@@ -36,14 +36,6 @@
                                     </div>
                                 </a>
                             </li>
-                            <!--<li>
-                                <a href="/installaties.html">
-                                    <div class="nav_item flex">
-                                        <svg class="icon" aria-hidden="true" focusable="false" class="svg-inline--fa fa-toolbox fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M502.63 214.63l-45.25-45.25c-6-6-14.14-9.37-22.63-9.37H384V80c0-26.51-21.49-48-48-48H176c-26.51 0-48 21.49-48 48v80H77.25c-8.49 0-16.62 3.37-22.63 9.37L9.37 214.63c-6 6-9.37 14.14-9.37 22.63V320h128v-16c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v16h128v-16c0-8.84 7.16-16 16-16h32c8.84 0 16 7.16 16 16v16h128v-82.75c0-8.48-3.37-16.62-9.37-22.62zM320 160H192V96h128v64zm64 208c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16v-16H192v16c0 8.84-7.16 16-16 16h-32c-8.84 0-16-7.16-16-16v-16H0v96c0 17.67 14.33 32 32 32h448c17.67 0 32-14.33 32-32v-96H384v16z"></path></svg>
-                                        <p>Installaties</p>
-                                    </div>
-                                </a>
-                            </li> -->
                         </ul>
                     </div>
                 </div>
@@ -61,14 +53,18 @@
                         <div class="card dashboard">
                             
 
-                            <form action="" method="POST">
+                            <form class="js-create-new-installation">
 
                                 <p class="u-mb-xxl subtitle">Kirsten Vermeulen</p>
 
                                 <div class="js-installations">
                                     <div class="u-mb-xxl flex flex_gutter installations">
-                                        <p class="installations_label u-mb-clear">Installatie 1</p>
-    
+                                        <div class="flex flex_align_center flex_space_between installations_labels">
+                                            <p class="installations_label u-mb-clear">Installatie 1</p>
+                            
+                                            <!-- <svg aria-hidden="true" focusable="false" class="icon installations_close u-mb-clear js-close-1" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>-->
+                                        </div>
+                            
                                         <div class="flex_item u-mb u-1-of-2-bp3 u-3-of-4-bp4">
                                             <label for="adres-1" class="u-mb-sm">Adres</label>
                                             <input id="adres-1" class="custom_input" type="text" required>
@@ -94,7 +90,7 @@
 
                                 <p class="u-mb-xxl js-extra">+ Installatie toevoegen</p>
 
-                                <input class="button submit" type="submit" value="Aanmaken">
+                                <input class="button submit" type="submit" value="Toevoegen">
 
                             </form>
                         </div>

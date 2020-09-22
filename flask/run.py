@@ -65,7 +65,14 @@ def customers():
             elif request.method == 'POST':
 
                 json = request.get_json()
-                customer_cursor = c.execute("INSERT INTO klanten VALUES (?, ?, ?, ?)", [str(uuid.uuid4()), json['name'], json['phone'], json['mail'], ])
+
+                customer_id = str(uuid.uuid4())
+
+                customer_cursor = c.execute("INSERT INTO klanten VALUES (?, ?, ?, ?)", [customer_id, json['name'], json['phone'], json['mail'], ])
+
+                for installation in json['installations']:
+                    customer_cursor = c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [str(uuid.uuid4()), customer_id, installation['address'], installation['type'], installation['installation_date'], installation['installation_date'], 0, 0, installation['pnumber'], installation['reminder'], 0])
+
                 conn.commit()
 
                 return jsonify(json)
