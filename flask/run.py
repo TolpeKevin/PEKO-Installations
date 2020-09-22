@@ -12,7 +12,9 @@ from email.mime.multipart import MIMEMultipart
 app = Flask(__name__)
 CORS(app)
 
+# ---------------
 # SQLite setup
+# ---------------
 
 db = "flask/PekoInstallations.db"
 
@@ -24,7 +26,9 @@ else:
     print("Database found")
     f.close()
 
+# ---------------
 # smtp setup
+# ---------------
 
 port = 465  # For SSL
 try:
@@ -38,15 +42,15 @@ login = "gamesdezotn@gmail.com"
 sender_email = "herinnering@peko.be"  # Enter your address
 receiver_email = "k.tolpe@hotmail.com"  # Enter receiver address
 
+
+# ---------------
 # Routes
+# ---------------
 
 @app.route("/")
 def init():
     return jsonify('Initializing')
 
-# ---------------
-# New Code
-# ---------------
 
 @app.route("/customers", methods=['GET', 'POST'])
 def customers():
@@ -149,6 +153,8 @@ def installations():
             elif request.method == 'POST':
 
                 json = request.get_json()
+                print(json)
+
                 for installation in json['installations']:
                     c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [str(uuid.uuid4()), json['customer_id'], installation['address'], installation['type'], str_to_utc(installation['installation_date']), str_to_utc(installation['installation_date']), 0, 0, installation['pnumber'], installation['reminder'], 0])
 
@@ -159,9 +165,8 @@ def installations():
             elif request.method == 'PUT':
 
                 json = request.get_json()
-
                 for installation in json['installations']:
-                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [installation['id'], json['customer_id'], installation['address'], installation['type'], str_to_utc(installation['installation_date']), str_to_utc(installation['installation_date']), 0, 0, installation['pnumber'], installation['reminder'], 0])
+                    c.execute("UPDATE installaties set (adres = ?, type = ?, datum = ?, laatste_onderhoud = ?, onderhoud_peko = ?, onderhoud_atag = ?, p_nummer = ?, dagen_tot_onderhoud = ?, mail_verstuurd =  ?)", [installation['address'], installation['type'], str_to_utc(installation['installation_date']), str_to_utc(installation['installation_date']), 0, 0, installation['pnumber'], installation['reminder'], check_mail(installation['id'],str_to_utc(installation['maintenance_date']))])
 
                 conn.commit()
                 return jsonify("Succes")
@@ -192,68 +197,6 @@ def installation(costumer_id):
 # ---------------
 # Old Code
 # ---------------
-
-@app.route("/klanten", methods=['GET','POST', 'PUT'])
-def klanten():
-    try:
-        with sqlite3.connect(db) as con:
-            c = con.cursor()
-            if request.method == 'GET':
-                klanten_cursor = c.execute("select * FROM klanten")
-                klanten = [{"id":k[0],"naam":k[1],"telefoon":k[2],"mail":k[3]} for k in klanten_cursor]
-                return jsonify(klanten)
-
-            elif request.method == 'POST':
-                c.execute("INSERT INTO klanten VALUES (?, ?, ?, ?)",[str(uuid.uuid4()), request.json['naam'], request.json['telefoon'], request.json['mail']])
-                return jsonify(c.lastrowid)
-
-            elif request.method == 'PUT':
-                c.execute("update klanten set naam = ?, telefoon = ?, mail = ? where id = ?", [request.json['naam'], request.json['telefoon'], request.json['mail'], request.json['id']])
-                return jsonify({"message":"succes"})
-
-    except Exception as e:
-        print(e)
-
-
-@app.route("/installaties", methods=['POST','PUT'])
-def installaties():
-    try:
-        with sqlite3.connect(db) as con:
-            c = con.cursor()
-            if request.method == 'POST':
-                nieuwe_installatie = valideer_installatie_request(request, "POST")
-                if nieuwe_installatie:
-                    c.execute("INSERT INTO installaties VALUES (?,?,?,?,?,?,?,?,?,?,?)",(str(uuid.uuid4()), nieuwe_installatie['klant'], nieuwe_installatie['adres'], nieuwe_installatie['type'] ,nieuwe_installatie['datum_installatie'],nieuwe_installatie['datum_installatie'], nieuwe_installatie['onderhoud_peko'], nieuwe_installatie['onderhoud_atag'], nieuwe_installatie['p_nummer'], nieuwe_installatie['dagen_tot_onderhoud'], nieuwe_installatie['mail_verstuurd']))
-                    return jsonify(c.lastrowid)
-                else:
-                    return jsonify({"error":"missing key"})
-
-            elif request.method == 'PUT':
-                nieuwe_installatie = valideer_installatie_request(request, "PUT")
-                if nieuwe_installatie:
-                    c.execute("UPDATE installaties set klant = ?,adres = ?,type = ?,datum = ?, laatste_onderhoud = ?,onderhoud_peko = ?,onderhoud_atag = ?,p_nummer = ?,dagen_tot_onderhoud = ?,mail_verstuurd = ? where id = ?", [nieuwe_installatie['klant'], nieuwe_installatie['adres'], nieuwe_installatie['type'] ,nieuwe_installatie['datum_installatie'],nieuwe_installatie['laatste_onderhoud'], nieuwe_installatie['onderhoud_peko'], nieuwe_installatie['onderhoud_atag'], nieuwe_installatie['p_nummer'], nieuwe_installatie['dagen_tot_onderhoud'], nieuwe_installatie['mail_verstuurd'], nieuwe_installatie['id']])
-                    return jsonify({"message":"succes"})
-                else:
-                    return jsonify({"error":"missing key"})
-                    
-    except Exception as e:
-        print(e)
-
-
-@app.route("/installaties/<klant_id>", methods=['GET'])
-def installaties_klant(klant_id):
-    try:
-        with sqlite3.connect(db) as con:
-            c = con.cursor()
-            if request.method == 'GET':
-                c.execute("select * FROM installaties where klant = ?",[klant_id])
-                installaties_dict = [{"id":k[0],"klant":k[1],"adres":k[2],"type":k[3],"datum_intallatie":k[4],"laatste_onderhoud":k[5],"onderhoud_peko":k[6],"onderhoude_atag":k[7],"p_nummer":k[8],"dagen_tot_onderhoud":k[9],"mail_verstuurd":k[10]} for k in c.fetchall()]
-                return jsonify(installaties_dict)
-
-                    
-    except Exception as e:
-        print(e)
-
 @app.route("/upcoming", methods=['GET'])
 def upcoming():
     try:
@@ -266,48 +209,40 @@ def upcoming():
     except Exception as e:
         print(e)
 
+# ---------------
 # date conversion
+# ---------------
 
 def str_to_utc(str_date):
     return datetime.datetime.strptime(str_date, '%Y-%m-%d').timestamp()
 
 def utc_to_str(utc_date):
-    print(utc_date, type(float(utc_date)))
     return datetime.datetime.fromtimestamp(float(utc_date)).strftime('%Y-%m-%d')
 
-
-# request validation
-def valideer_installatie_request(r, t):
-    if t == "POST":
-        if all(key in r.json.keys() for key in ['klant','adres','type','datum_installatie','laatste_onderhoud','onderhoud_peko','onderhoud_atag','p_nummer','dagen_tot_onderhoud','mail_verstuurd']):
-            gevalideerde_installatie = r.json
-            gevalideerde_installatie['datum_installatie'] = r.json.get('datum_installatie') if r.json.get('datum_installatie') != '' else time.mktime(datetime.date.today().timetuple())
-            gevalideerde_installatie['laatste_onderhoud'] = r.json.get('laatste_onderhoud') if r.json.get('laatste_onderhoud') != '' else time.mktime(datetime.date.today().timetuple())
-            gevalideerde_installatie['mail_verstuurd'] = 0
-            return gevalideerde_installatie
+# ---------------
+# update 'mail send' on items who received maintenance on PUT
+# ---------------
+def check_mail(installation_id, installation_maintenance):
+     with sqlite3.connect(db) as con:
+        c = con.cursor()
+        c.execute("select laatste_onderhoud from installaties where id = ?;", [installation_id])
+        if c.fetchone()[0] != installation_maintenance:
+            return 0
         else: 
-            return False
-    elif t == "PUT":
-        if all(key in r.json.keys() for key in ['id','klant','adres','type','datum_installatie','laatste_onderhoud','onderhoud_peko','onderhoud_atag','p_nummer','dagen_tot_onderhoud','mail_verstuurd']):
-            gevalideerde_installatie = r.json
-            with sqlite3.connect(db) as con:
-                c = con.cursor()
-                c.execute("select laatste_onderhoud from installaties where id = ?;", [gevalideerde_installatie['id']])
-                if c.fetchone()[0] != gevalideerde_installatie['laatste_onderhoud']:
-                    gevalideerde_installatie['mail_verstuurd'] = 0
-            return gevalideerde_installatie
-        else: 
-            return False
+            return 1
 
 
-# reminder
+# ---------------
+# mails for installations that need maintenance
+# ---------------
+
+
 def get_te_onderhouden_installaties():
     with sqlite3.connect(db) as con:
         c = con.cursor()
         c.execute('select k.*, i.* from installaties as i inner JOIN klanten as k on i.klant = k.id where (laatste_onderhoud + (dagen_tot_onderhoud * 86400)) <= cast(strftime("%s", "now") as decimal) and mail_verstuurd = 0')
         send_mail(c.fetchall())
 
-# mails
 def send_mail(installaties):
     return True
     #mails...
@@ -339,7 +274,7 @@ def send_mail(installaties):
             message["To"] = receiver_email
             message.attach(MIMEText(html, "plain"))
             server.sendmail(sender_email, receiver_email, message.as_string())
-        return True
+
         # update db for send mails
         with sqlite3.connect(db) as con:
             c = con.cursor()
@@ -349,7 +284,9 @@ def send_mail(installaties):
 
 get_te_onderhouden_installaties()
 
+# ---------------
 # Setup
+# ---------------
 
 if __name__ == "__main__":
     app.run(host='0.0.0.0', port=5000)
