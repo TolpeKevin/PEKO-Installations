@@ -100,7 +100,7 @@ const addListeners = function(page) {
                     "type": event.srcElement[i+1].value,
                     "pnumber": event.srcElement[i+2].value,
                     "installation_date": event.srcElement[i+3].value,
-                    "reminder": event.srcElement[i+4].value
+                    "reminder": event.srcElement[i+5].value
                 }
 
                 createInst.push(inst)
@@ -112,6 +112,50 @@ const addListeners = function(page) {
             let body = JSON.stringify({"customer_id": id, "installations": createInst})
 
             handleData(`http://127.0.0.1:5000/installations`, successfull, 'POST', body)
+
+            event.preventDefault();
+
+        });
+    }
+    else if(page == 'js-update-installation'){
+        installationForm.addEventListener('submit', function(event) {
+
+            console.log(event)
+
+            /* Wat is hte totaal aantal instaalaties? */
+
+            actualNmbInst++
+
+            let nmbInputs = 6 * actualNmbInst
+
+            let createInst = []
+
+            for(let i = 0; i < nmbInputs; i += 6){
+
+                /* Complete the body */  
+
+                console.log(nmbInputs)
+
+                let inst = {
+                    "address": event.srcElement[i].value,
+                    "type": event.srcElement[i+1].value,
+                    "pnumber": event.srcElement[i+2].value,
+                    "installation_date": event.srcElement[i+3].value,
+                    "maintenance_date": event.srcElement[i+4].value,
+                    "reminder": event.srcElement[i+5].value
+                }
+
+                createInst.push(inst)
+            }
+
+            const urlParams = new URLSearchParams(window.location.search);
+            const id = urlParams.get('id');
+
+            let body = JSON.stringify({"customer_id": id, "installations": createInst})
+
+            console.log(body)
+
+            /*handleData(`http://127.0.0.1:5000/installations`, successfull, 'POST', body)*/
 
             event.preventDefault();
 
@@ -320,7 +364,53 @@ const updateCompany = function(name, phone, mail) {
 }
 
 const editInstallations = function(json) {
-    console.log(json)
+
+    installationsform = document.querySelector('.js-installations');
+
+    let html = ''
+    let teller = 1
+
+    for(item of json) {
+
+        console.log(item)
+
+        html += `<div class="u-mb-xxl flex flex_gutter installations">
+        <div class="flex flex_align_center flex_space_between installations_labels">
+            <p class="installations_label u-mb-clear">Installatie ${teller}</p>
+
+            <!-- <svg aria-hidden="true" focusable="false" class="icon installations_close u-mb-clear js-close-1" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>-->
+        </div>
+
+        <div class="flex_item u-mb u-1-of-2-bp3 u-3-of-4-bp4">
+            <label for="adres-${teller}" class="u-mb-sm">Adres</label>
+            <input id="adres-${teller}" class="custom_input" value="${item["address"]}" type="text" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
+            <label for="type-${teller}" class="u-mb-sm">Type</label>
+            <input id="type-${teller}" class="custom_input" value="${item["type"]}" type="text" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
+            <label for="pnumber-${teller}" class="u-mb-sm">P nummer</label>
+            <input id="pnumber-${teller}" class="custom_input" value="${item["p_nummer"]}" type="text" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
+            <label for="installationdate-${teller}" class="u-mb-sm">Installatiedatum</label>
+            <input id="installationdate-${teller}" class="custom_input" value="${item["installation_date"]}" type="date" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
+            <label for="maintenancedate-${teller}" class="u-mb-sm">Laatste onderhoud</label>
+            <input id="maintenancedate-${teller}" class="custom_input" value="${item["laatste_onderhoud"]}" type="date" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
+            <label for="reminder-${teller}" class="u-mb-sm">Reminder (dagen)</label>
+            <input id="reminder-${teller}" class="custom_input" value="${item["dagen_tot_onderhoud"]}" type="number" required>
+        </div>
+    </div>`
+
+    teller++
+    }
+
+    installationsform.innerHTML = html
 }
 
 const addInstallations = function(json) {
@@ -407,7 +497,7 @@ const getData = function() {
     else if(page == 'js-update-installation'){
         const urlParams = new URLSearchParams(window.location.search);
         const id = urlParams.get('id');
-        handleData(`http://127.0.0.1:5000/customers/${id}`, editInstallations);
+        handleData(`http://127.0.0.1:5000/installations/${id}`, editInstallations);
     }
 }
 
