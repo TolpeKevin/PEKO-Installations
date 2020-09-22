@@ -22,10 +22,26 @@ const getDOMsByPage = function(page) {
         installationsform = document.querySelector('.js-installations');
         extra = document.querySelector('.js-extra');
         installationForm = document.querySelector('.js-create-new-installation');
+        companyname = document.querySelector('.js-company-name');
+
+        changeCompanyName();
+    }
+    else if(page == 'js-update-installation'){
+        installationsform = document.querySelector('.js-installations');
+        installationForm = document.querySelector('.js-update-installation');
+        companyname = document.querySelector('.js-company-name');
+
+        changeCompanyName();
     } 
 }
 
+const changeCompanyName = function() {
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const name = urlParams.get('name');
+
+    companyname.innerHTML = name
+}
 
 const addListeners = function(page) {
 
@@ -246,8 +262,9 @@ const listenersCustomer = function() {
 
         customer['children'][2]['children'][1]['children'][0]['children'][1].addEventListener('click', function() {
             let id = customer['dataset']['id']
+            let name = customer['dataset']['name']
 
-            document.location.href = `/nieuweinstallatie.html?id=${id}`;
+            document.location.href = `/nieuweinstallatie.html?id=${id}&name=${name}`;
         })
 
         /* Navigate to Update Installation */
@@ -256,7 +273,10 @@ const listenersCustomer = function() {
 
         customer['children'][2]['children'][1]['children'][0]['children'][2].addEventListener('click', function() {
 
-            document.location.href = `/updateinstallatie.html`;
+            let id = customer['dataset']['id']
+            let name = customer['dataset']['name']
+
+            document.location.href = `/updateinstallatie.html?id=${id}&name=${name}`;
         })
 
         /* Navigate to Update Companyinfo */
@@ -297,6 +317,10 @@ const updateCompany = function(name, phone, mail) {
     handleData(`http://127.0.0.1:5000/customers/${id}`, successfull, 'PUT', body)
     return false
 
+}
+
+const editInstallations = function(json) {
+    console.log(json)
 }
 
 const addInstallations = function(json) {
@@ -379,6 +403,11 @@ const getData = function() {
         const id = urlParams.get('id');
 
         handleData(`http://127.0.0.1:5000/customers/${id}`, editCompany);
+    }
+    else if(page == 'js-update-installation'){
+        const urlParams = new URLSearchParams(window.location.search);
+        const id = urlParams.get('id');
+        handleData(`http://127.0.0.1:5000/customers/${id}`, editInstallations);
     }
 }
 
