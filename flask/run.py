@@ -14,7 +14,7 @@ CORS(app)
 
 # SQLite setup
 
-db = "/database/PekoInstallations.db"
+db = "flask/PekoInstallations.db"
 
 try:
     f = open(db)
@@ -146,6 +146,24 @@ def installations():
                         all_installations.append({"id": inst[1], "installations": [{"id": inst[0], "adres": inst[2], "type": inst[3], "datum_installatie": inst[4], "laatste_onderhoud": inst[5], "p_nummer": inst[8], "reminder": inst[9]}]})
                 print(all_installations)
                 return jsonify(all_installations)
+            
+            elif request.method == 'POST':
+
+                json = request.get_json()
+
+                for installation in json['installations']:
+                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [str(uuid.uuid4()), installation['customer_id'], installation['address'], installation['type'], installation['installation_date'], installation['installation_date'], 0, 0, installation['pnumber'], installation['reminder'], 0])
+
+                conn.commit()
+            
+            elif request.method == 'PUT':
+
+                json = request.get_json()
+
+                for installation in json['installations']:
+                    c.execute("INSERT INTO installaties VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", [installation['id'], installation['customer_id'], installation['address'], installation['type'], installation['installation_date'], installation['installation_date'], 0, 0, installation['pnumber'], installation['reminder'], 0])
+
+                conn.commit()
 
             c.close()
             conn.close()
@@ -233,6 +251,11 @@ def upcoming():
     except Exception as e:
         print(e)
 
+# date conversion
+
+def str_to_utc(str_date):
+    d = datetime.datetime.strptime(str_date, '%Y-%m-%d')
+    return true
 
 # request validation
 def valideer_installatie_request(r, t):
