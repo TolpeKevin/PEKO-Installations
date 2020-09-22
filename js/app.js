@@ -1,4 +1,4 @@
-let page, customers, overlay;
+let page, customers, overlay, installationForm;
 
 /* Customers */
 let allCustomers;
@@ -17,7 +17,12 @@ const getDOMsByPage = function(page) {
         installationsform = document.querySelector('.js-installations');
         extra = document.querySelector('.js-extra');
         customerForm = document.querySelector('.js-create-new-customer');
-    }    
+    }
+    else if(page == 'js-new-installation'){
+        installationsform = document.querySelector('.js-installations');
+        extra = document.querySelector('.js-extra');
+        installationForm = document.querySelector('.js-create-new-installation');
+    } 
 }
 
 
@@ -29,72 +34,120 @@ const addListeners = function(page) {
     else if(page == 'js-new-customer'){
         customerForm.addEventListener('submit', function(event) {
 
-            nmbInputs = 3 + 5 * actualNmbInst
+            let nmbInputs = 3 + 5 * actualNmbInst
 
-            for(let i = 0; i < nmbInputs; i++){
+            let createInst = []
 
-                /* Complete the body */    
+            for(let i = 3; i < nmbInputs; i += 5){
 
-                console.log(event.srcElement[i].value)
+                /* Complete the body */  
+
+                let inst = {
+                    "address": event.srcElement[i].value,
+                    "type": event.srcElement[i+1].value,
+                    "pnumber": event.srcElement[i+2].value,
+                    "installation_date": event.srcElement[i+3].value,
+                    "reminder": event.srcElement[i+4].value
+                }
+
+                createInst.push(inst)
             }
 
-            
+            let body = JSON.stringify({"name": event.srcElement[0].value, "phone": event.srcElement[1].value, "mail": event.srcElement[2].value, "installations": createInst})
 
-            /*let body = JSON.stringify({"name": name.value, "phone": phone.value, "mail": mail.value, "installations": []})
-            handleData(`http://127.0.0.1:5000/customers`, successfull, 'POST', body)*/
+            handleData(`http://127.0.0.1:5000/customers`, successfull, 'POST', body)
 
             event.preventDefault();
         })
 
+        extraInstallationListener();
+        
+    }
+    else if(page == 'js-new-installation'){
+        nmbInst++
+        extraInstallationListener();
 
-        extra.addEventListener('click', function(){
-            nmbInst++
-            actualNmbInst++
+        installationForm.addEventListener('submit', function(event) {
 
-            let container = document.createElement("div")
+            let nmbInputs = 5 * actualNmbInst
 
-            container.classList.add('u-mb-xxl')
-            container.classList.add('flex')
-            container.classList.add('flex_gutter')
-            container.classList.add('installations')
+            let createInst = []
 
-            container.innerHTML = `
+            for(let i = 0; i < nmbInputs; i += 5){
 
-            <div class="flex flex_align_center flex_space_between installations_labels">
-                <p class="installations_label u-mb-clear">Installatie ${nmbInst}</p>
+                /* Complete the body */  
 
-                <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="icon installations_close u-mb-clear js-close-${nmbInst}" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
-            </div>
+                let inst = {
+                    "address": event.srcElement[i].value,
+                    "type": event.srcElement[i+1].value,
+                    "pnumber": event.srcElement[i+2].value,
+                    "installation_date": event.srcElement[i+3].value,
+                    "reminder": event.srcElement[i+4].value
+                }
 
-            <div class="flex_item u-mb u-1-of-2-bp3 u-3-of-4-bp4">
-                <label for="adres-${nmbInst}" class="u-mb-sm">Adres</label>
-                <input id="adres-${nmbInst}" class="custom_input" type="text" required>
-            </div>
-            <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
-                <label for="type-${nmbInst}" class="u-mb-sm">Type</label>
-                <input id="type-${nmbInst}" class="custom_input" type="text" required>
-            </div>
-            <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
-                <label for="pnumber-${nmbInst}" class="u-mb-sm">P nummer</label>
-                <input id="pnumber-${nmbInst}" class="custom_input" type="text" required>
-            </div>
-            <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
-                <label for="installationdate-${nmbInst}" class="u-mb-sm">Installatiedatum</label>
-                <input id="installationdate-${nmbInst}" class="custom_input" type="date" required>
-            </div>
-            <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
-                <label for="reminder-${nmbInst}" class="u-mb-sm">Reminder (dagen)</label>
-                <input id="reminder-${nmbInst}" class="custom_input" type="number" required>
-            </div>`
+                createInst.push(inst)
+            }
 
-            installationsform.appendChild(container)
+            let body = JSON.stringify({"installations": createInst})
 
-            document.querySelector(`.js-close-${nmbInst}`).addEventListener('click', function(){
-                installationsform.removeChild(container)
-                actualNmbInst--
-            });
+            /*handleData(`http://127.0.0.1:5000/customers`, successfull, 'POST', body)*/
+
+            console.log(body)
+
+            event.preventDefault();
+
         });
-    }    
+    }
+}
+
+const extraInstallationListener = function() {
+    extra.addEventListener('click', function(){
+        nmbInst++
+        actualNmbInst++
+
+        let container = document.createElement("div")
+
+        container.classList.add('u-mb-xxl')
+        container.classList.add('flex')
+        container.classList.add('flex_gutter')
+        container.classList.add('installations')
+
+        container.innerHTML = `
+
+        <div class="flex flex_align_center flex_space_between installations_labels">
+            <p class="installations_label u-mb-clear">Installatie ${nmbInst}</p>
+
+            <svg aria-hidden="true" focusable="false" data-prefix="fas" data-icon="times" class="icon installations_close u-mb-clear js-close-${nmbInst}" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 352 512"><path fill="currentColor" d="M242.72 256l100.07-100.07c12.28-12.28 12.28-32.19 0-44.48l-22.24-22.24c-12.28-12.28-32.19-12.28-44.48 0L176 189.28 75.93 89.21c-12.28-12.28-32.19-12.28-44.48 0L9.21 111.45c-12.28 12.28-12.28 32.19 0 44.48L109.28 256 9.21 356.07c-12.28 12.28-12.28 32.19 0 44.48l22.24 22.24c12.28 12.28 32.2 12.28 44.48 0L176 322.72l100.07 100.07c12.28 12.28 32.2 12.28 44.48 0l22.24-22.24c12.28-12.28 12.28-32.19 0-44.48L242.72 256z"></path></svg>
+        </div>
+
+        <div class="flex_item u-mb u-1-of-2-bp3 u-3-of-4-bp4">
+            <label for="adres-${nmbInst}" class="u-mb-sm">Adres</label>
+            <input id="adres-${nmbInst}" class="custom_input" type="text" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-4-bp4">
+            <label for="type-${nmbInst}" class="u-mb-sm">Type</label>
+            <input id="type-${nmbInst}" class="custom_input" type="text" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
+            <label for="pnumber-${nmbInst}" class="u-mb-sm">P nummer</label>
+            <input id="pnumber-${nmbInst}" class="custom_input" type="text" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
+            <label for="installationdate-${nmbInst}" class="u-mb-sm">Installatiedatum</label>
+            <input id="installationdate-${nmbInst}" class="custom_input" type="date" required>
+        </div>
+        <div class="flex_item u-mb u-1-of-2-bp3 u-1-of-3-bp4">
+            <label for="reminder-${nmbInst}" class="u-mb-sm">Reminder (dagen)</label>
+            <input id="reminder-${nmbInst}" class="custom_input" type="number" required>
+        </div>`
+
+        installationsform.appendChild(container)
+
+        document.querySelector(`.js-close-${nmbInst}`).addEventListener('click', function(){
+            installationsform.removeChild(container)
+            actualNmbInst--
+        });
+    });
 }
 
 const successfull = function(json) {
@@ -122,11 +175,11 @@ const showCustomers = function(json) {
                         <div class="customer_info">
                             <div class="flex customer_edit">
                                 <p class="u-mb customer_subtitle">Bedrijfsinformatie</p>
-                                <svg class="icon u-mb" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg>
+                                <svg class="icon u-mb" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg>
                             </div>
                             
 
-                            <div class="flex u-mb-md">
+                            <div class="flex u-mb-xxl">
                                 <div class="flex flex_item u-mb-clear u-1-of-2-bp3 u-1-of-3-bp4">
                                     <p class="u-mr-md u-mb-clear"><b>Tel.:</b></p>
                                     <p class="u-mr-md u-mb-clear">${j['phone']}</p>
@@ -137,19 +190,13 @@ const showCustomers = function(json) {
                                     <p class="u-mr-md u-mb-clear">${j['mail']}</p>
                                 </div>
                             </div>
-                            <div class="flex u-mb-xxl">
-                                <div class="flex flex_item u-mb-clear u-1-of-2-bp3 u-1-of-3-bp4">
-                                    <p class="u-mr-md u-mb-clear"><b>Aantal installaties:</b></p>
-                                    <p class="u-mr-md u-mb-clear"></p>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="customer_info">
                             <div class="flex customer_edit">
                                 <p class="u-mb customer_subtitle">Installaties</p>
-                                <svg class="icon u-mb" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="plus" class="svg-inline--fa fa-plus fa-w-14" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg>
-                                <svg class="icon u-mb" aria-hidden="true" focusable="false" data-prefix="fas" data-icon="pen" class="svg-inline--fa fa-pen fa-w-16" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg>
+                                <svg class="icon u-mb" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 448 512"><path fill="currentColor" d="M416 208H272V64c0-17.67-14.33-32-32-32h-32c-17.67 0-32 14.33-32 32v144H32c-17.67 0-32 14.33-32 32v32c0 17.67 14.33 32 32 32h144v144c0 17.67 14.33 32 32 32h32c17.67 0 32-14.33 32-32V304h144c17.67 0 32-14.33 32-32v-32c0-17.67-14.33-32-32-32z"></path></svg>
+                                <svg class="icon u-mb" aria-hidden="true" focusable="false" role="img" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512"><path fill="currentColor" d="M290.74 93.24l128.02 128.02-277.99 277.99-114.14 12.6C11.35 513.54-1.56 500.62.14 485.34l12.7-114.22 277.9-277.88zm207.2-19.06l-60.11-60.11c-18.75-18.75-49.16-18.75-67.91 0l-56.55 56.55 128.02 128.02 56.55-56.55c18.75-18.76 18.75-49.16 0-67.91z"></path></svg>
                             </div>
                         </div>
                     </div>
@@ -192,17 +239,19 @@ const listenersCustomer = function() {
 
         /* Navigate to New Installation */
 
+        console.log(customer['children'][2]['children'][1]['children'][0]['children'][1])
+
         customer['children'][2]['children'][1]['children'][0]['children'][1].addEventListener('click', function() {
             let id = customer['dataset']['id']
-            let name = customer['dataset']['name']
 
-            document.location.href = `/nieuweinstallatie.html?id=${id}&name=${name}`;
+            document.location.href = `/nieuweinstallatie.html?id=${id}`;
         })
 
         /* Navigate to Update Installation */
 
+        console.log(customer['children'][2]['children'][1]['children'][0]['children'][2])
+
         customer['children'][2]['children'][1]['children'][0]['children'][2].addEventListener('click', function() {
-            let id = customer['dataset']['id']
 
             document.location.href = `/updateinstallatie.html`;
         })
@@ -259,8 +308,13 @@ const addInstallations = function(json) {
 
                 for(i of j['installations']){
 
-                    let html = `<div class="u-mb flex installations">
-                                <div class="flex_item u-3-of-4-bp4">
+                    let container = document.createElement("div")
+
+                    container.classList.add('u-mb')
+                    container.classList.add('flex')
+                    container.classList.add('installations')
+
+                    container.innerHTML = `<div class="flex_item u-3-of-4-bp4">
                                     <div class="flex">
                                         <p class="u-mb-md u-mr-md"><b>Adres:</b></p>
                                         <p class="u-mb-md">${i['adres']}</p>
@@ -281,13 +335,13 @@ const addInstallations = function(json) {
                                 <div class="flex_item u-1-of-2-bp3 u-1-of-3-bp4">
                                     <div class="flex">
                                         <p class="u-mb-md u-mr-md"><b>Datum installatie:</b></p>
-                                        <p class="u-mb-md">${toDate(i['datum_installatie'])}</p>
+                                        <p class="u-mb-md">${i['datum_installatie']}</p>
                                     </div>
                                 </div>
                                 <div class="flex_item u-1-of-2-bp3 u-1-of-3-bp4">
                                     <div class="flex">
                                         <p class="u-mb-md u-mr-md"><b>Laatste onderhoud:</b></p>
-                                        <p class="u-mb-md">${toDate(i['laatste_onderhoud'])}</p>
+                                        <p class="u-mb-md">${i['laatste_onderhoud']}</p>
                                     </div>
                                 </div>
                                 <div class="flex_item u-1-of-2-bp3 u-1-of-3-bp4">
@@ -296,10 +350,11 @@ const addInstallations = function(json) {
                                         <p class="u-mb-md u-mr-md"><b>Reminder:</b></p>
                                         <p class="u-mb-md">na ${i['reminder']} dagen</p>
                                     </div>
-                                </div>
-                            </div>`
+                                </div>`
+
+                            
                     
-                    c['children'][2]['children'][1].innerHTML += html
+                    c['children'][2]['children'][1].appendChild(container)
                 }
             }
         }
@@ -344,17 +399,6 @@ const handleData = function(url, callback, method = 'GET', body = null) {
         console.error(`Error: ${error}`);
       });
   };
-
-const toDate = function(seconds) {
-    let date = new Date(0);
-    date.setUTCSeconds(seconds)
-
-    let day = date.getDate();
-    let month = date.getMonth() + 1;
-    let year = date.getFullYear();
-
-    return `${day}/${month}/${year}`
-}
 
 const init = function() {
 
