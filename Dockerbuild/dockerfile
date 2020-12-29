@@ -5,3 +5,4 @@ RUN apt-get install -y sqlite3 libsqlite3-dev nginx
 RUN pip install flask
 RUN pip install flask-cors
 RUN pip install jsonify
+RUN pip install apschedular
