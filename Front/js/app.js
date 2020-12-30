@@ -104,7 +104,7 @@ const addListeners = function(page) {
                     "type": event.srcElement[i+1].value,
                     "pnumber": event.srcElement[i+2].value,
                     "installation_date": event.srcElement[i+3].value,
-                    "reminder": event.srcElement[i+4].value
+                    "reminder": event.srcElement[i+5].value
                 }
 
                 createInst.push(inst)
